@@ -21,3 +21,5 @@ return_1() {
 plain_var=plain_value
 
 declare -r constant=constant_value
+
+declare -i integer_var=0x7E4

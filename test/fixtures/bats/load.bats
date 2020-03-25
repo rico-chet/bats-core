@@ -12,3 +12,8 @@ load "$HELPER_NAME"
 @test "load supports constants" {
   [ "${constant}" = "constant_value" ]
 }
+
+@test "load supports integer variables" {
+  [ "${integer_var}" -eq 2020 ]
+  (( integer_var == 2020 ))
+}
