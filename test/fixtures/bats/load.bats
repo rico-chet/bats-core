@@ -9,3 +9,8 @@ load "$HELPER_NAME"
   [ -n "${plain_var}" ]
   [ "${plain_var}" = "plain_value" ]
 }
+
+@test "load supports constants" {
+  [ -n "${constant}" ]
+  [ "${constant}" = "constant_value" ]
+}

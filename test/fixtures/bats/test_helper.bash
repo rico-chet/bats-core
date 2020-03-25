@@ -19,3 +19,5 @@ return_1() {
 }
 
 plain_var=plain_value
+
+declare -r constant=constant_value
