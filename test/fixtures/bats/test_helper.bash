@@ -17,3 +17,5 @@ return_1() {
   result=1
   return $result
 }
+
+plain_var=plain_value
