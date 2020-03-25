@@ -8,3 +8,7 @@ load "$HELPER_NAME"
 @test "load supports plain variables" {
   [ "${plain_var}" = "plain_value" ]
 }
+
+@test "load supports constants" {
+  [ "${constant}" = "constant_value" ]
+}
