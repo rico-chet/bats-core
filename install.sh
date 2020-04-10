@@ -11,6 +11,13 @@ if [[ -z "$PREFIX" ]]; then
     "  e.g. $0 /usr/local" >&2
   exit 1
 fi
+mkdir -p "$PREFIX"/{bin,libexec,share/man/man{1,7}}
+
+for scripts_dir in 'bin' 'libexec'; do
+  scripts=("$BATS_ROOT/$scripts_dir"/*)
+  cp "${scripts[@]}" "$PREFIX/$scripts_dir"
+  chmod a+x "${scripts[@]/#$BATS_ROOT[/]/$PREFIX/}"
+done
 
 install -d -m 755 "$PREFIX"/{bin,libexec/bats-core,share/man/man{1,7}}
 install -m 755 "$BATS_ROOT/bin"/* "$PREFIX/bin"
