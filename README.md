@@ -53,6 +53,7 @@ commit [0360811][].  It was created via `git clone --bare` and `git push
   - [npm](#npm)
   - [Installing Bats from source](#installing-bats-from-source)
   - [Running Bats in Docker](#running-bats-in-docker)
+    - [Building a Docker image](#building-a-docker-image)
 - [Usage](#usage)
 - [Writing tests](#writing-tests)
   - [`run`: Test other commands](#run-test-other-commands)
@@ -60,7 +61,7 @@ commit [0360811][].  It was created via `git clone --bare` and `git push
   - [`skip`: Easily skip tests](#skip-easily-skip-tests)
   - [`setup` and `teardown`: Pre- and post-test hooks](#setup-and-teardown-pre--and-post-test-hooks)
   - [Code outside of test cases](#code-outside-of-test-cases)
-  - [File descriptor 3](#file-descriptor-3-read-this-if-bats-hangs)
+  - [File descriptor 3 (read this if Bats hangs)](#file-descriptor-3-read-this-if-bats-hangs)
   - [Printing to the terminal](#printing-to-the-terminal)
   - [Special variables](#special-variables)
 - [Support](#support)
@@ -134,31 +135,40 @@ permission to write to the installation prefix.
 
 ### Running Bats in Docker
 
+There is an official image on the Docker Hub:
+
+    $ docker run -it bats/bats:latest --version
+
+#### Building a Docker image
+
 Check out a copy of the Bats repository, then build a container image:
 
     $ git clone https://github.com/bats-core/bats-core.git
     $ cd bats-core
-    $ docker build --tag bats:latest .
+    $ docker build --tag bats/bats:latest .
 
-This creates a local Docker image called `bats:latest` based on [Alpine
-Linux][]. To run Bats' internal test suite (which is in the container image at
+This creates a local Docker image called `bats/bats:latest` based on [Alpine
+Linux](https://github.com/gliderlabs/docker-alpine/blob/master/docs/usage.md) 
+(to push to private registries, tag it with another organisation, e.g. 
+`my-org/bats:latest`).
+
+To run Bats' internal test suite (which is in the container image at
 `/opt/bats/test`):
 
-[Alpine Linux]: https://github.com/gliderlabs/docker-alpine/blob/master/docs/usage.md
-
-    $ docker run -it bats:latest /opt/bats/test
+    $ docker run -it bats/bats:latest /opt/bats/test
 
 To run a test suite from your local machine, mount in a volume and direct Bats
 to its path inside the container:
 
-    $ docker run -it -v "$(pwd):/code" bats:latest /code/test
+    $ docker run -it -v "$(pwd):/code" bats/bats:latest /code/test
 
-This is a minimal image. If more tools are required this can be used as a base
-image in a Dockerfile using `FROM <Docker image>`.  In the future there may be
-images based on Debian, and/or with more tools installed (`curl` and `openssl`,
+This is a minimal Docker image. If more tools are required this can be used as a 
+base image in a Dockerfile using `FROM <Docker image>`.  In the future there may 
+be images based on Debian, and/or with more tools installed (`curl` and `openssl`,
 for example). If you require a specific configuration please search and +1 an
 issue or [raise a new issue](https://github.com/bats-core/bats-core/issues).
 
+Further usage examples are in [the wiki](https://github.com/bats-core/bats-core/wiki/Docker-Usage-Examples).
 
 ## Usage
 
@@ -170,16 +180,17 @@ supports:
 
 ```
 Bats x.y.z
-Usage: bats [-c] [-p | -t] <test> [<test> ...]
+Usage: bats [-c] [-r] [-p | -t] <test> [<test> ...]
 
   <test> is the path to a Bats test file, or the path to a directory
   containing Bats test files.
 
-  -c, --count    Count the number of test cases without running any tests
-  -h, --help     Display this help message
-  -p, --pretty   Show results in pretty format (default for terminals)
-  -t, --tap      Show results in TAP format
-  -v, --version  Display the version number
+  -c, --count      Count the number of test cases without running any tests
+  -h, --help       Display this help message
+  -p, --pretty     Show results in pretty format (default for terminals)
+  -r, --recursive  Include tests in subdirectories
+  -t, --tap        Show results in TAP format
+  -v, --version    Display the version number
 ```
 
 To run your tests, invoke the `bats` interpreter with one or more paths to test
@@ -424,6 +435,26 @@ on the wiki.
 ## Version history
 
 Bats is [SemVer compliant](https://semver.org/).
+
+*1.1.0* (July 8, 2018)
+
+This is the first release with new features relative to the original Bats 0.4.0.
+
+Added:
+* The `-r, --recursive` flag to scan directory arguments recursively for
+  `*.bats` files (#109)
+* The `contrib/rpm/bats.spec` file to build RPMs (#111)
+
+Changed:
+* Travis exercises latest versions of Bash from 3.2 through 4.4 (#116, #117)
+* Error output highlights invalid command line options (#45, #46, #118)
+* Replaced `echo` with `printf` (#120)
+
+Fixed:
+* Fixed `BATS_ERROR_STATUS` getting lost when `bats_error_trap` fired multiple
+  times under Bash 4.2.x (#110)
+* Updated `bin/bats` symlink resolution, handling the case on CentOS where
+  `/bin` is a symlink to `/usr/bin` (#113, #115)
 
 *1.0.2* (June 18, 2018)
 

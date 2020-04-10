@@ -2,28 +2,40 @@
 set -e
 
 version() {
-  echo "Bats 1.0.2"
+  printf 'Bats 1.1.0\n'
 }
 
 usage() {
   version
-  echo "Usage: bats [-c] [-p | -t] <test> [<test> ...]"
+  printf 'Usage: bats [-c] [-r] [-p | -t] <test> [<test> ...]\n'
+}
+
+abort() {
+  printf 'Error: %s\n' "$1" >&2
+  usage >&2
+  exit 1
 }
 
 help() {
+  local line
   usage
-  echo
-  echo "  <test> is the path to a Bats test file, or the path to a directory"
-  echo "  containing Bats test files."
-  echo
-  echo "  -c, --count    Count the number of test cases without running any tests"
-  echo "  -h, --help     Display this help message"
-  echo "  -p, --pretty   Show results in pretty format (default for terminals)"
-  echo "  -t, --tap      Show results in TAP format"
-  echo "  -v, --version  Display the version number"
-  echo
-  echo "  For more information, see https://github.com/bats-core/bats-core"
-  echo
+  while read -r line; do
+    printf '%s\n' "$line"
+  done <<END_OF_HELP_TEXT
+
+  <test> is the path to a Bats test file, or the path to a directory
+  containing Bats test files.
+
+  -c, --count      Count the number of test cases without running any tests
+  -h, --help       Display this help message
+  -p, --pretty     Show results in pretty format (default for terminals)
+  -r, --recursive  Include tests in subdirectories
+  -t, --tap        Show results in TAP format
+  -v, --version    Display the version number
+
+  For more information, see https://github.com/bats-core/bats-core
+
+END_OF_HELP_TEXT
 }
 
 expand_path() {
@@ -66,9 +78,10 @@ for arg in "$@"; do
   fi
 done
 
-unset count_flag pretty
+unset count_flag pretty recursive
 count_flag=''
 pretty=''
+recursive=''
 if [[ -z "${CI:-}" && -t 0 && -t 1 ]]; then
   pretty=1
 fi
@@ -87,6 +100,9 @@ if [[ "${#options[@]}" -ne 0 ]]; then
     "c" | "count" )
       count_flag="-c"
       ;;
+    "r" | "recursive" )
+      recursive=1
+      ;;
     "t" | "tap" )
       pretty=""
       ;;
@@ -94,16 +110,14 @@ if [[ "${#options[@]}" -ne 0 ]]; then
       pretty=1
       ;;
     * )
-      usage >&2
-      exit 1
+      abort "Bad command line option '-$option'"
       ;;
     esac
   done
 fi
 
 if [[ "${#arguments[@]}" -eq 0 ]]; then
-  usage >&2
-  exit 1
+  abort 'Must specify at least one <test>'
 fi
 
 filenames=()
@@ -112,9 +126,15 @@ for filename in "${arguments[@]}"; do
 
   if [[ -d "$filename" ]]; then
     shopt -s nullglob
-    for suite_filename in "$filename"/*.bats; do
-      filenames["${#filenames[@]}"]="$suite_filename"
-    done
+    if [[ "$recursive" -eq 1 ]]; then
+      while IFS= read -r -d $'\0' file; do
+        filenames["${#filenames[@]}"]="$file"
+      done < <(find "$filename" -type f -name "*.bats" -print0 | sort -z)
+    else
+      for suite_filename in "$filename"/*.bats; do
+        filenames["${#filenames[@]}"]="$suite_filename"
+      done
+    fi
     shopt -u nullglob
   else
     filenames["${#filenames[@]}"]="$filename"
