@@ -229,6 +229,21 @@ fixtures bats
   [ $status -eq 0 ]
 }
 
+@test "load supports libraries with loaders on the BATS_LIB_PATH" {
+  path_dir="$BATS_TMPNAME/libraries/test_helper"
+  mkdir -p "$path_dir"
+  cp "${FIXTURE_ROOT}/test_helper.bash" "${path_dir}/load.bash"
+  BATS_LIB_PATH="${BATS_TMPNAME}/libraries" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
+}
+
+@test "load supports libraries without loaders on the BATS_LIB_PATH" {
+  path_dir="$BATS_TMPNAME/libraries/test_helper"
+  mkdir -p "$path_dir"
+  cp "${FIXTURE_ROOT}/test_helper.bash" "${path_dir}/test_helper.bash"
+  BATS_LIB_PATH="${BATS_TMPNAME}/libraries" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
+}
+
+
 @test "output is discarded for passing tests and printed for failing tests" {
   run bats "$FIXTURE_ROOT/output.bats"
   [ $status -eq 1 ]
