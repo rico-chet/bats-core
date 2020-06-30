@@ -237,6 +237,17 @@ fixtures bats
   BATS_LIB_PATH="${BATS_TMPNAME}/libraries" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
 }
 
+@test "load supports libraries with loaders on the BATS_LIB_PATH with multiple libraries" {
+  path_dir="$BATS_TMPNAME/libraries2/"
+  for lib in liba libb libc; do
+      mkdir -p "$path_dir/$lib"
+      cp "${FIXTURE_ROOT}/exit1.bash" "$path_dir/$lib/load.bash"
+  done
+  mkdir -p "$path_dir/test_helper"
+  cp "${FIXTURE_ROOT}/test_helper.bash" "$path_dir/test_helper/load.bash"
+  BATS_LIB_PATH="$path_dir" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
+}
+
 @test "load supports libraries without loaders on the BATS_LIB_PATH" {
   path_dir="$BATS_TMPNAME/libraries/test_helper"
   mkdir -p "$path_dir"
