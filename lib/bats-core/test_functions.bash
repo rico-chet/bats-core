@@ -4,9 +4,10 @@ BATS_TEST_DIRNAME="${BATS_TEST_FILENAME%/*}"
 BATS_TEST_NAMES=()
 
 # _load expects an absolute path to a file or directory to source.
-# If the argument is a file the file will be sourced.
-# If the argument is a directory _load checks of the file `init` or
-# `init.bash` inside - if it exists this file is loaded. If it doesn't
+# If the argument is a file the file will be sourced or the same path
+# with the added suffix `.bash` exists it will be sourced..
+# If the argument is a directory _load checks of the file `load` or
+# `load.bash` inside - if it exists this file is loaded. If it doesn't
 # exist all files with the `.bash` suffix are sourced.
 #
 # Order with `/path/to/example` as argument:
@@ -15,7 +16,6 @@ BATS_TEST_NAMES=()
 #  - /path/to/example/load.bash
 #  - /path/to/example/load
 #  - /path/to/example/*.bash
-# be sourced.
 _load() {
     local file="${1:?}"
 
