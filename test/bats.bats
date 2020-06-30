@@ -221,11 +221,11 @@ fixtures bats
   [ $status -eq 0 ]
 }
 
-@test "load supports scripts on the PATH" {
+@test "load supports scripts on the BATS_LIB_PATH" {
   path_dir="$BATS_TMPNAME/path"
   mkdir -p "$path_dir"
   cp "${FIXTURE_ROOT}/test_helper.bash" "${path_dir}/on_path"
-  PATH="${path_dir}:$PATH"  HELPER_NAME="on_path" run bats "$FIXTURE_ROOT/load.bats"
+  BATS_LIB_PATH="${path_dir}"  HELPER_NAME="on_path" run bats "$FIXTURE_ROOT/load.bats"
   [ $status -eq 0 ]
 }
 
