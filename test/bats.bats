@@ -233,6 +233,7 @@ fixtures bats
   path_dir="$BATS_TMPNAME/libraries/test_helper"
   mkdir -p "$path_dir"
   cp "${FIXTURE_ROOT}/test_helper.bash" "${path_dir}/load.bash"
+  cp "${FIXTURE_ROOT}/exit1.bash" "${path_dir}/exit1.bash"
   BATS_LIB_PATH="${BATS_TMPNAME}/libraries" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
 }
 
