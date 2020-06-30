@@ -39,9 +39,9 @@ _load() {
     done
 
     if [[ -d "$file" ]]; then
-        while read contained; do
+        for contained in "$file"/*.bash; do
             source "$contained"
-        done <<< $(find "$opt" -mindepth 1 -maxdepth 1 -type f -name '*.bash')
+        done
         return
     fi
 
