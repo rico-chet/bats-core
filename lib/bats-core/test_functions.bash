@@ -67,12 +67,12 @@ load() {
   libpath="$BATS_TEST_DIRNAME:$libpath"
 
   # Check for argument in libpath
-  while read libdir; do
+  while read -r libdir; do
     if _load "$libdir/$file"; then
       # _load finished without error, file/library was sourced, return
       return
     fi
-  done <<< $(echo "$libpath" | sed 's#:#\n#g')
+  done <<< "$(echo $libpath | sed 's#:#\n#g')"
 
   printf "Failed to load file or library based on argument '%s'\n" "$file" >&2
   exit 1
