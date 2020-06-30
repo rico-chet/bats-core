@@ -62,17 +62,26 @@ load() {
     return
   fi
 
-  # Set libpath with directory of current test file and BATS_LIB_PATH
-  local libpath="${BATS_LIB_PATH:-$HOME/.bats/lib:/usr/lib/bats}"
-  libpath="$BATS_TEST_DIRNAME:$libpath"
+  local bats_lib_path="$BATS_LIB_PATH"
+  if [[ -z "$bats_lib_path" ]]; then
+    bats_lib_path="$HOME/.bats/lib:/usr/lib/bats"
+  fi
 
-  # Check for argument in libpath
-  while read -r libdir; do
-    if _load "$libdir/$file"; then
+  # Replace spaces with __SPACE__ to turn back into spaces after
+  # splitting in the for loop.
+  # Splitting on spaces is required to prevent eating input. However
+  # users may have places paths in BATS_LIB_PATH with spaces - those
+  # paths would get split as well; hence the substitution and
+  # replacement.
+  bats_lib_path="${BATS_TEST_DIRNAME// /__SPACE__}:${bats_lib_path// /__SPACE__}"
+
+  for part in ${bats_lib_path//:/ }; do
+    part="${part//__SPACE__/ }"
+    if _load "$part/$file"; then
       # _load finished without error, file/library was sourced, return
       return
     fi
-  done <<< "$(echo $libpath | sed 's#:#\n#g')"
+  done
 
   printf "Failed to load file or library based on argument '%s'\n" "$file" >&2
   exit 1
