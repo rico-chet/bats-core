@@ -67,16 +67,10 @@ load() {
     bats_lib_path="$HOME/.bats/lib:/usr/lib/bats"
   fi
 
-  # Replace spaces with __SPACE__ to turn back into spaces after
-  # splitting in the for loop.
-  # Splitting on spaces is required to prevent eating input. However
-  # users may have places paths in BATS_LIB_PATH with spaces - those
-  # paths would get split as well; hence the substitution and
-  # replacement.
-  bats_lib_path="${BATS_TEST_DIRNAME// /__SPACE__}:${bats_lib_path// /__SPACE__}"
+  local -a parts
+  IFS=: read -ra parts <<< "$bats_lib_path"
 
-  for part in ${bats_lib_path//:/ }; do
-    part="${part//__SPACE__/ }"
+  for part in "${parts[@]}"; do
     if _load "$part/$file"; then
       # _load finished without error, file/library was sourced, return
       return
