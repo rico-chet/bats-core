@@ -255,6 +255,17 @@ fixtures bats
   BATS_LIB_PATH="${BATS_TMPNAME}/libraries" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
 }
 
+@test "load can handle whitespaces in BATS_LIB_PATH" {
+  path_dir="$BATS_TMPNAME/libraries with spaces/"
+  for lib in liba libb libc; do
+      mkdir -p "$path_dir/$lib"
+      cp "${FIXTURE_ROOT}/exit1.bash" "$path_dir/$lib/load.bash"
+  done
+  mkdir -p "$path_dir/test_helper"
+  cp "${FIXTURE_ROOT}/test_helper.bash" "$path_dir/test_helper/load.bash"
+  BATS_LIB_PATH="$path_dir" HELPER_NAME="test_helper" run bats "$FIXTURE_ROOT/load.bats"
+}
+
 
 @test "output is discarded for passing tests and printed for failing tests" {
   run bats "$FIXTURE_ROOT/output.bats"
