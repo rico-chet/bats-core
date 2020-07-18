@@ -66,6 +66,7 @@ load() {
   if [[ -z "$bats_lib_path" ]]; then
     bats_lib_path="$HOME/.bats/lib:/usr/lib/bats"
   fi
+  bats_lib_path="$BATS_TEST_DIRNAME:$bats_lib_path"
 
   local -a parts
   IFS=: read -ra parts <<< "$bats_lib_path"
